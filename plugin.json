@@ -1,0 +1,74 @@
+{
+  "id": "studio3d",
+  "kind": "plugin",
+  "version": "1.0.12",
+  "label": "3D AI Studio",
+  "description": "3D AI Studio API \u2014 text/image-to-3D, image generation, miniature flow, and mesh tools (Tripo, TRELLIS, Tencent, convert/repair/optimize). Optional import into a running Blender session.",
+  "min_app_version": "1.0.0",
+  "default_enabled": false,
+  "secret_keys": [
+    "3d_ai_studio_api_key"
+  ],
+  "contributes": {
+    "settings.tabs": [
+      {
+        "id": "Studio3D",
+        "label": "3D AI Studio",
+        "icon": "assets/icon.png",
+        "ui": "sections"
+      }
+    ],
+    "settings.sections": [
+      {
+        "tab": "Studio3D",
+        "id": "account",
+        "title": "3D AI Studio",
+        "description": "Paste your 3D AI Studio API key (from 3daistudio.com \u2192 Platform \u2192 API). Stored encrypted on this device. Powers studio3d_* MCP tools for text/image-to-3D, image gen, miniature flow, and mesh tools.",
+        "order": 10,
+        "properties": [
+          {
+            "id": "3d_ai_studio_api_key",
+            "type": "secret",
+            "label": "API key",
+            "placeholder": "Bearer token\u2026",
+            "testable": true,
+            "description": "Get a key at https://www.3daistudio.com/Platform/API#api-keys \u2014 required for studio3d_* tools. Use Test to verify the key."
+          }
+        ]
+      }
+    ],
+    "walkthrough": {
+      "id": "studio3d",
+      "title": "3D AI Studio setup",
+      "auto_start": "first_enable",
+      "settings_tab": "Studio3D",
+      "steps": [
+        {
+          "target": "settings.tab.3d-ai-studio",
+          "title": "Paste your API key",
+          "body": "Create a key at 3daistudio.com \u2192 Platform \u2192 API, paste it here, then hit Test. Tools appear as studio3d_* once this plugin is enabled. Paid jobs always ask via a panel question (ducky_ask_user) before confirm_spend.",
+          "advance": "next",
+          "mode": "rect"
+        },
+        {
+          "target": "settings.tab.3d-ai-studio",
+          "title": "Generate and import",
+          "body": "Ask the agent to generate a mesh (Tripo, TRELLIS, Tencent, miniature). Optional: open Blender with the MCP addon to land GLBs via studio3d_import_glb_to_blender. Modeling cleanup uses the separate Blender Store plugin.",
+          "advance": "next"
+        }
+      ]
+    },
+    "agent.tools": {
+      "category": "studio3d",
+      "intent_pattern": "\\b(3daistudio|3d\\s*ai\\s*studio|tripo|trellis|miniature|studio3d)\\b",
+      "plan_tools": [
+        "studio3d_balance",
+        "studio3d_status"
+      ]
+    }
+  },
+  "backend": {
+    "entry": "backend",
+    "register": "register"
+  }
+}
