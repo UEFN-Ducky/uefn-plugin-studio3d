@@ -1,12 +1,12 @@
 ---
 name: studio3d-api
 description: "3D AI Studio via UEFN-Ducky MCP — text/image-to-3D, image gen, miniature flow, mesh tools, credit balance. Async: submit → task_id → poll → download/import to Blender."
-license: All Rights Reserved
+license: Ducky Source-Available License v1.0
 metadata:
   label: 3D AI Studio
-  version: 5
-  author: Iliya Kovachki
-  copyright: Copyright 2026 Iliya Kovachki
+  version: 6
+  author: UEFN-Ducky
+  copyright: Copyright 2026 UEFN-Ducky
   allow_redistribute: false
   managed_by: uefn-ducky
   source_plugin_id: studio3d
@@ -29,7 +29,7 @@ API key lives in **Settings → 3D AI Studio** (encrypted on device). This is th
 
 1. Submit → JSON with `task_id`
 2. `studio3d_status(task_id)` or `studio3d_status(task_id, poll=true)` until `FINISHED` / `FAILED`
-3. `studio3d_download(task_id)` and/or `studio3d_import_glb_to_blender(asset_url)`
+3. `studio3d_download(task_id)` and/or `studio3d_import_glb_to_blender(url_or_path)`
 
 Generation tools accept `wait=true` to poll + download in one call (can take several minutes). Prefer submit + poll when the user may want progress updates.
 

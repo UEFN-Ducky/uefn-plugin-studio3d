@@ -1,7 +1,7 @@
 # 3D AI Studio API reference (UEFN-Ducky MCP)
 
 Base URL used by the plugin: `https://api.3daistudio.com`  
-Auth: Bearer key from Settings → Blender → 3D AI Studio.
+Auth: Bearer key from Settings → 3D AI Studio.
 
 Agents use **`studio3d_*` tools** — not curl/CLI.
 
@@ -10,7 +10,7 @@ Agents use **`studio3d_*` tools** — not curl/CLI.
 ```
 submit tool  →  { "task_id": "…", "status": "submitted" }
 studio3d_status(task_id) until FINISHED | FAILED
-studio3d_download(task_id)  and/or  studio3d_import_glb_to_blender(asset_url)
+studio3d_download(task_id)  and/or  studio3d_import_glb_to_blender(url_or_path)
 ```
 
 Status values: `PENDING` | `IN_PROGRESS` | `FINISHED` | `FAILED`  
