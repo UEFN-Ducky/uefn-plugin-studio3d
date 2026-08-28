@@ -16,3 +16,7 @@ Writes `deploy/studio3d-1.0.12.ducky-plugin.zip` (scripts/ and deploy/ are not p
 ## Secrets
 
 Never commit tokens or keys. The app stores `3d_ai_studio_api_key` locally (DPAPI), not in this package.
+
+## License
+
+MIT. Copyright (c) 2026 Mindful Path Company, LLC. See [LICENSE](LICENSE).

@@ -1,13 +1,13 @@
 ---
 name: studio3d-api
 description: "3D AI Studio via UEFN-Ducky MCP — text/image-to-3D, image gen, miniature flow, mesh tools, credit balance. Async: submit → task_id → poll → download/import to Blender."
-license: Ducky Source-Available License v1.0
+license: MIT
 metadata:
   label: 3D AI Studio
   version: 6
   author: UEFN-Ducky
-  copyright: Copyright 2026 UEFN-Ducky
-  allow_redistribute: false
+  copyright: Copyright 2026 Mindful Path Company, LLC
+  allow_redistribute: true
   managed_by: uefn-ducky
   source_plugin_id: studio3d
 ---
