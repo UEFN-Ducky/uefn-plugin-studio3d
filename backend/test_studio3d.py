@@ -14,7 +14,7 @@ try:
         format_balance_detail,
         parse_status_payload,
         resolve_image,
-        test_api_key,
+        test_api_key as check_api_key,
     )
 except ImportError:
     from studio3d import (
@@ -24,7 +24,7 @@ except ImportError:
         format_balance_detail,
         parse_status_payload,
         resolve_image,
-        test_api_key,
+        test_api_key as check_api_key,
     )
 
 
@@ -86,7 +86,7 @@ def test_credit_gate() -> None:
 
 def test_format_balance_and_empty_key() -> None:
     assert "42" in format_balance_detail({"credits": 42})
-    assert test_api_key("")["ok"] is False
+    assert check_api_key("")["ok"] is False
 
 
 if __name__ == "__main__":

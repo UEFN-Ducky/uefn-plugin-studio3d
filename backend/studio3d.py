@@ -10,7 +10,6 @@ import base64
 import json
 import logging
 import tempfile
-import time
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -31,7 +30,13 @@ def _api_key() -> str:
 
 
 def encode_image(path: str) -> str:
-    """Local image path → data URI."""
+    """Local image path → data URI. Host conduit when running in the EXE."""
+    try:
+        from backend.util.http import encode_image as _encode_image
+
+        return _encode_image(path)
+    except ImportError:
+        pass
     p = Path(path)
     if not p.is_file():
         raise FileNotFoundError(f"image not found: {path}")
@@ -47,6 +52,12 @@ def encode_image(path: str) -> str:
 
 def resolve_image(image: str) -> str:
     """Pass through http(s)/data URIs; encode local paths."""
+    try:
+        from backend.util.http import resolve_image as _resolve_image
+
+        return _resolve_image(image)
+    except ImportError:
+        pass
     s = (image or "").strip()
     if not s:
         return ""
@@ -116,36 +127,29 @@ class Studio3dClient:
         self.timeout = timeout
 
     def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        from backend.util.http import HttpError, http_json
+
         url = f"{self.base_url}{path}"
-        data = None
-        headers = auth_header(self.api_key)
-        if payload is not None:
-            data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(url, data=data, headers=headers, method=method)
         try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                body = resp.read().decode("utf-8", "replace")
-        except urllib.error.HTTPError as exc:
-            detail_body = ""
-            try:
-                detail_body = exc.read().decode("utf-8", "replace")
-            except Exception:
-                pass
-            detail: Any = detail_body
-            try:
-                detail = json.loads(detail_body) if detail_body else {}
-            except (ValueError, TypeError):
-                pass
-            msg = _http_error_message(exc.code, detail)
-            raise Studio3dError(msg, status=exc.code, detail=detail) from exc
-        except urllib.error.URLError as exc:
-            raise Studio3dError(f"3D AI Studio network error: {exc.reason}") from exc
-        if not body.strip():
-            return {}
-        try:
-            parsed = json.loads(body)
-        except json.JSONDecodeError as exc:
-            raise Studio3dError(f"3D AI Studio returned non-JSON: {body[:200]}") from exc
+            parsed = http_json(
+                method,
+                url,
+                headers=auth_header(self.api_key),
+                json_body=payload,
+                timeout=self.timeout,
+            )
+        except HttpError as exc:
+            if exc.status:
+                raise Studio3dError(
+                    _http_error_message(exc.status, exc.detail),
+                    status=exc.status,
+                    detail=exc.detail,
+                ) from exc
+            raise Studio3dError(
+                f"3D AI Studio {exc}",
+                status=exc.status,
+                detail=exc.detail,
+            ) from exc
         if not isinstance(parsed, dict):
             raise Studio3dError(f"3D AI Studio unexpected response type: {type(parsed).__name__}")
         return parsed
@@ -169,14 +173,20 @@ class Studio3dClient:
         poll_interval: int = 10,
         max_attempts: int = 120,
     ) -> dict[str, Any]:
-        for _ in range(max_attempts):
-            result = self.status(task_id)
-            if result["finished"] or result["failed"]:
-                return result
-            time.sleep(max(1, poll_interval))
-        raise Studio3dError(
-            f"Task {task_id} did not finish within {max_attempts * poll_interval}s"
-        )
+        from backend.util.http import poll
+
+        try:
+            return poll(
+                lambda: self.status(task_id),
+                done=lambda r: bool(r["finished"]),
+                failed=lambda r: bool(r["failed"]),
+                interval=poll_interval,
+                max_attempts=max_attempts,
+            )
+        except TimeoutError as exc:
+            raise Studio3dError(
+                f"Task {task_id} did not finish within {max_attempts * poll_interval}s"
+            ) from exc
 
     def download_url(self, url: str, dest: Path) -> Path:
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -259,6 +269,9 @@ def test_api_key(api_key: str = "") -> dict[str, Any]:
         return {"ok": True, "detail": format_balance_detail(Studio3dClient(api_key=key).balance())}
     except Studio3dError as exc:
         return {"ok": False, "detail": str(exc)}
+
+
+test_api_key.__test__ = False  # Settings helper; pytest must not collect this
 
 
 def credit_gate(confirm_spend: bool, estimated_credits: int, label: str) -> str | None:
