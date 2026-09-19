@@ -4,7 +4,7 @@ description: "3D AI Studio via UEFN-Ducky MCP — text/image-to-3D, image gen, m
 license: MIT
 metadata:
   label: 3D AI Studio
-  version: 6
+  version: 7
   author: UEFN-Ducky
   copyright: Copyright 2026 Mindful Path Company, LLC
   allow_redistribute: true
@@ -95,3 +95,7 @@ Paid `studio3d_*` create tools **refuse** unless `confirm_spend=true`. Free: bal
 - Don't tell the user to install `requests` or set `.env`.
 - Don't ask spend approval only in chat — always `ducky_ask_user`.
 - Don't call paid tools with `confirm_spend=true` unless `ducky_ask_user` just approved that spend.
+
+## Verify
+
+`studio3d_status` / `get_static_mesh_info` after import.
